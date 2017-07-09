@@ -1,0 +1,212 @@
+buildscript {
+    ext.kotlin_version = '1.1.3'
+    // Refer to https://github.com/spring-projects/spring-boot/blob/v1.5.4.RELEASE/spring-boot-dependencies/pom.xml
+    // for any versions that are already in there and use those exact versions, as far as possible
+    ext {
+        aptPluginVersion = '0.10'
+        asciiDoctorPluginVersion = '1.5.3'
+        commonsLangVersion = '3.5'
+        commonsMathVersion = '3.6.1'
+        disruptorVersion = '1.2.10'
+        dropwizardVersion = '3.2.2'
+        getOptVersion = '1.0.9'
+        guavaVersion = '22.0'
+        hazelcastVersion = '3.8.2'
+        jacksonVersion = '2.8.8'
+        kotlin_version = '1.1.3'
+        log4j2Version = '2.8.2'
+        lombokVersion = '1.16.16'
+        metricsSpringVersion = '3.1.3'
+        ojdbc6Version = '12.1.0.1-atlassian-hosted'
+        springBootVersion = '1.5.4.RELEASE'
+        springDataKeyValueVersion = '1.2.4.RELEASE'
+        thymeleafLayoutDialectVersion = '2.2.2'
+        thymeExtrasJava8TimeVersion = '3.0.0.RELEASE'
+        thymeleafVersion = '3.0.6.RELEASE'
+        vavrVersion = '0.9.0'
+    }
+    repositories {
+        mavenLocal()
+        jcenter()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url('http://repo.spring.io/plugins-release') }
+    }
+
+    dependencies {
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("io.spring.gradle:propdeps-plugin:0.0.9.RELEASE")
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.2.RELEASE'
+        classpath('com.oracle:ojdbc6:12.1.0.1-atlassian-hosted')
+        classpath("net.ltgt.gradle:gradle-apt-plugin:${aptPluginVersion}")
+        classpath("org.asciidoctor:asciidoctor-gradle-plugin:${asciiDoctorPluginVersion}")
+        classpath 'se.transmode.gradle:gradle-docker:1.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+apply plugin: 'org.asciidoctor.convert'
+
+subprojects { project ->
+    repositories {
+        mavenLocal()
+        jcenter()
+        mavenCentral()
+        maven { url('https://repository.jboss.org/nexus/content/repositories/releases') }
+        maven { url('https://oss.sonatype.org/content/groups/public') }
+        maven { url('https://repository.jboss.org/nexus/content/groups/public') }
+        maven { url('http://clojars.org/repo') }
+    }
+
+    apply plugin: 'kotlin'
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'net.ltgt.apt'
+
+    if (!excludedSpringBoot(project)) {
+        apply plugin: 'org.springframework.boot'
+    }
+
+    if (!excludedCheckstyle(project)) {
+        apply plugin: 'checkstyle'
+        checkstyle {
+            toolVersion = "7.8.1"
+            ignoreFailures = false
+            configFile = file("${rootDir}/codequality/checkstyle/checkstyle.xml")
+        }
+    }
+
+    apply plugin: 'propdeps'
+
+    group = 'com.redknee.unified.5g'
+    version = '0.0.1-SNAPSHOT'
+
+    dependencies {
+        apt "org.projectlombok:lombok:${lombokVersion}"
+    }
+
+    compileKotlin {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+    compileTestKotlin {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+
+    dependencyManagement {
+        applyMavenExclusions true
+
+        dependencies {
+            dependencies {
+                dependency group: 'com.hazelcast', name: 'hazelcast', version: "${hazelcastVersion}"
+                dependency group: 'com.hazelcast', name: 'hazelcast-client', version: "${hazelcastVersion}"
+                dependency group: 'com.hazelcast', name: 'hazelcast-all', version: "${hazelcastVersion}"
+
+                // spring
+                dependencySet(group: 'org.springframework.boot', version: "${springBootVersion}") {
+                    entry('spring-boot-starter-logging')
+                    entry('spring-boot-starter')
+                    entry('spring-boot-starter-web')
+                    entry('spring-boot-starter-test')
+                    entry('spring-boot-configuration-processor')
+                    entry('spring-boot-starter-aop')
+                    entry('spring-boot-starter-thymeleaf')
+                }
+
+                // Spring Web MVC Templating and Dialects
+                dependencySet(group: 'org.thymeleaf', version: "${thymeleafVersion}") {
+                    entry('thymeleaf')
+                    entry('thymeleaf-spring4')
+                }
+                dependency group: 'nz.net.ultraq.thymeleaf', name: 'thymeleaf-layout-dialect', version:
+                        "${thymeleafLayoutDialectVersion}"
+                dependency group: 'org.thymeleaf.extras', name: 'thymeleaf-extras-java8time',  version:
+                        "${thymeExtrasJava8TimeVersion}"
+
+                dependency group: 'org.springframework.data', name: 'spring-data-keyvalue', version:
+                        "${springDataKeyValueVersion}"
+                
+                dependency group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
+                dependency group: 'com.google.guava', name: 'guava', version: "${guavaVersion}"
+                dependency group: 'com.conversantmedia', name: 'disruptor', version: "${disruptorVersion}"
+                dependency group: 'com.oracle', name: 'ojdbc6', version: "${ojdbc6Version}"
+
+                // jackson
+                dependencySet(group: 'com.fasterxml.jackson.core', version: "${jacksonVersion}") {
+                    entry('jackson-databind')
+                    entry('jackson-annotations')
+                }
+
+                dependencySet(group: 'com.fasterxml.jackson.datatype', version: "${jacksonVersion}") {
+                    entry('jackson-datatype-jdk8')
+                    entry('jackson-datatype-jsr310')
+                }
+
+                dependencySet(group: 'com.fasterxml.jackson.module', version: "${jacksonVersion}") {
+                    entry('jackson-module-parameter-names')
+                    entry('jackson-module-kotlin')
+                }
+
+                dependency group: 'org.apache.commons', name: 'commons-math3', version: "${commonsMathVersion}"
+                dependency group: 'org.apache.commons', name: 'commons-lang3', version: "${commonsLangVersion}"
+
+                dependency group: 'urbanophile', name: 'java-getopt', version: "${getOptVersion}"
+
+                dependency group: 'io.vavr', name: 'vavr', version: "${vavrVersion}"
+
+                // metrics
+                dependencySet(group: 'io.dropwizard.metrics', version: "${dropwizardVersion}") {
+                    entry('metrics-core')
+                    entry('metrics-annotation')
+                    entry('metrics-jvm')
+                    entry('metrics-servlets')
+                    entry('metrics-log4j2')
+                }
+
+                dependencySet(group: 'com.ryantenney.metrics', version: "${metricsSpringVersion}") {
+                    entry('metrics-spring') {
+                        exclude group: 'com.codahale.metrics'
+                        exclude group: 'org.springframework'
+                    }
+                }
+
+//                dependency group: '', name: '', version: "${}"
+            }
+        }
+    }
+
+    configurations {
+        all*.exclude module : 'spring-boot-starter-logging'
+    }
+}
+
+asciidoctor {
+    sourceDir = file("${rootDir}/documentation/asciidoc/src")
+    outputDir = file("${rootDir}/documentation/asciidoc")
+    sources {
+        include 'README.adoc'
+    }
+}
+
+boolean excludedSpringBoot(project) {
+    return isProjectInArray(project, [])
+}
+
+boolean excludedCheckstyle(project) {
+    return isProjectInArray(project, [])
+}
+
+boolean isProjectInArray(project, exclusionsArray) {
+    def found = exclusionsArray.find { it == project.name }
+    return found
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.0'
+}

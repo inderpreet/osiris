@@ -1,0 +1,15 @@
+sourceCompatibility = 1.8
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+
+    // Inter-project dependencies
+    compile project(':core')
+
+    // Application specific dependencies
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-starter-logging')
+
+    // Test dependencies
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}

@@ -1,0 +1,2 @@
+rootProject.name = 'trials-of-osiris'
+include 'core', 'server'

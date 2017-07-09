@@ -1,0 +1,9 @@
+Trials of Osiris
+================
+Author Name <Amarjeet.Singh@redknee.com>
+v0.0.1, 2017-06-21
+:compat-mode!:
+:toc: left
+:toclevels: 5
+:toc-title: Table of Contents
+
