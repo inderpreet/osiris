@@ -4,7 +4,6 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../server">
       <excludeFolder url="file://$MODULE_DIR$/../../../server/.gradle" />
-      <excludeFolder url="file://$MODULE_DIR$/../../../server/build/classes" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
