@@ -32,9 +32,15 @@ public class HomeController {
     }
 
     // TODO Need to check the string before parsing to float or things will go nutty.
-    
+
     @RequestMapping("/temperatures/{id}")
     public Temperature temperature(@PathVariable int id, @RequestParam(value="tempe", defaultValue = "0.0") String tempe ) {
         return new Temperature(id, Float.parseFloat(tempe));
     }
+
+//    Send that as a POST with the JSON data in the request body, not in the URL, and specify a content type of application/json.
+//    @RequestMapping(path = "/mno/objectKey", method = RequestMethod.POST, consumes = "application/json")
+//    public Book getBook(@RequestBody ObjectKey objectKey) {
+//        // code here
+//    }
 }
