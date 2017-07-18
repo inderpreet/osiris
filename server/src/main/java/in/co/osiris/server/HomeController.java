@@ -15,6 +15,10 @@ public class HomeController {
 
     private static final String format_temperature = "%s, 'Celcius";
 
+    @RequestMapping("/")
+    public String index(){
+        return "Spring Boot Application v 0.0.1";
+    }
     @RequestMapping("/hello")
     public String hello() {
         return "Hey Man! Wassup?";
